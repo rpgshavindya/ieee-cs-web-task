@@ -1,4 +1,4 @@
-import { Component, createContext, useContext, useEffect, useRef, useState } from 'react';
+import { Component, createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, MotionConfig, useInView, useScroll, useSpring } from 'motion/react';
 import {
   ArrowUpRight,
@@ -12,12 +12,14 @@ import {
   Globe2,
   Menu,
   Minus,
+  Moon,
   Pause,
   Play,
   Plus,
   Radio,
   Rocket,
   Sparkles,
+  Sun,
   Terminal,
   Users,
   X,
@@ -35,6 +37,12 @@ import Registration from './components/Registration';
 import { asset, faqs, missions, schedule } from './data';
 
 const MotionPaused = createContext(false);
+const themeAssets = {
+  dark: { orb: ['#4F8CFF', '#36F1CD', '#173B8C'], logo: 'ieee-cs-white.png' },
+  light: { orb: ['#295DCE', '#088C87', '#6150B6'], logo: 'ieee-cs-color.png' },
+};
+const themeQuery = '(prefers-color-scheme: light)';
+const themeStorageKey = 'orbit-theme';
 const entranceEase = [0.22, 1, 0.36, 1];
 const nav = [
   ['mission', 'The mission'],
@@ -42,6 +50,48 @@ const nav = [
   ['flight-plan', 'Flight plan'],
   ['faq', 'FAQs'],
 ];
+
+function useTheme() {
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'dark');
+  const hasPreference = useRef(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(themeStorageKey);
+      hasPreference.current ||= saved === 'light' || saved === 'dark';
+    } catch {
+      // Keep following the system preference when storage is unavailable.
+    }
+    const system = window.matchMedia(themeQuery);
+    const update = () => {
+      if (!hasPreference.current) setTheme(system.matches ? 'light' : 'dark');
+    };
+    update();
+    system.addEventListener('change', update);
+    return () => system.removeEventListener('change', update);
+  }, []);
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]').content = getComputedStyle(root)
+      .getPropertyValue('--bg-primary')
+      .trim();
+  }, [theme]);
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    hasPreference.current = true;
+    setTheme(next);
+    try {
+      localStorage.setItem(themeStorageKey, next);
+    } catch {
+      // The current page can still use the selected theme.
+    }
+  }
+
+  return [theme, toggleTheme];
+}
 
 class VisualBoundary extends Component {
   state = { failed: false };
@@ -164,7 +214,7 @@ function Countdown() {
   );
 }
 
-function Hero({ openRegistration, motionOff, setMotionOff, reduce }) {
+function Hero({ openRegistration, motionOff, setMotionOff, reduce, theme }) {
   const [boost, setBoost] = useState(false);
   const heroRef = useRef(null);
   const visible = useInView(heroRef, { margin: '100px' });
@@ -200,8 +250,8 @@ function Hero({ openRegistration, motionOff, setMotionOff, reduce }) {
         <div className="orb-fallback" aria-hidden="true" />
         <VisualBoundary>
           <Orb
-            colors={['#4F8CFF', '#36F1CD', '#173B8C']}
-            backgroundColor="#080D1E"
+            colors={themeAssets[theme].orb}
+            backgroundColor={theme === 'light' ? '#f5f8ff' : '#080d1e'}
             size={0.72}
             glow={1.18}
             bleed={1.08}
@@ -392,7 +442,7 @@ function MissionSection({ motionOff }) {
   );
 }
 
-function Tracks({ selected, setSelected, openRegistration, motionOff }) {
+function Tracks({ selected, setSelected, openRegistration, motionOff, theme }) {
   const current = missions.find((mission) => mission.id === selected);
   return (
     <section className="tracks-section section" id="tracks" tabIndex={-1}>
@@ -416,11 +466,12 @@ function Tracks({ selected, setSelected, openRegistration, motionOff }) {
           <Reveal key={mission.id} delay={index * 0.08}>
             <SpotlightCard
               className={`track-card ${selected === mission.id ? 'selected' : ''}`}
-              spotlightColor={mission.color}
+              spotlightColor={mission.accent}
+              theme={theme}
               paused={motionOff}
               intensity={0.1}
               borderGlow={0.7}
-              style={{ '--track-color': mission.color }}
+              style={{ '--track-color': mission.accent }}
             >
               <div className="track-card-layout">
                 <div className="track-card-top mono">
@@ -456,7 +507,7 @@ function Tracks({ selected, setSelected, openRegistration, motionOff }) {
           </Reveal>
         ))}
       </div>
-      <div className="mission-brief" id="mission-brief" style={{ '--track-color': current.color }}>
+      <div className="mission-brief" id="mission-brief" style={{ '--track-color': current.accent }}>
         <div className="brief-terminal">
           <div className="terminal-header">
             <span className="terminal-dots">
@@ -615,7 +666,7 @@ function FlightPlan() {
   );
 }
 
-function Payload() {
+function Payload({ theme }) {
   const paused = useContext(MotionPaused);
   return (
     <section className="payload-section section">
@@ -674,7 +725,12 @@ function Payload() {
         </Reveal>
         <div className="payload-side">
           <Reveal>
-            <SpotlightCard className="payload-card" spotlightColor="#4F8CFF" paused={paused}>
+            <SpotlightCard
+              className="payload-card"
+              spotlightColor="var(--accent-primary)"
+              theme={theme}
+              paused={paused}
+            >
               <div className="crew-avatars" aria-hidden="true">
                 <span>
                   <Code2 />
@@ -697,7 +753,12 @@ function Payload() {
             </SpotlightCard>
           </Reveal>
           <Reveal>
-            <SpotlightCard className="payload-card" spotlightColor="#36F1CD" paused={paused}>
+            <SpotlightCard
+              className="payload-card"
+              spotlightColor="var(--accent-secondary)"
+              theme={theme}
+              paused={paused}
+            >
               <Zap className="payload-zap" size={38} strokeWidth={1} />
               <span className="eyebrow">03 / RESET YOUR LIMITS</span>
               <h3>
@@ -770,6 +831,7 @@ function FAQ() {
 }
 
 export default function App() {
+  const [theme, toggleTheme] = useTheme();
   const [registration, setRegistration] = useState(false);
   const [selected, setSelected] = useState('human');
   const [menu, setMenu] = useState(false);
@@ -865,6 +927,20 @@ export default function App() {
                 Get on board <ArrowUpRight size={15} />
               </button>
               <button
+                className="icon-button"
+                type="button"
+                onClick={toggleTheme}
+                aria-label="Dark mode"
+                aria-pressed={theme === 'dark'}
+                title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {theme === 'dark' ? (
+                  <Sun size={20} aria-hidden="true" />
+                ) : (
+                  <Moon size={20} aria-hidden="true" />
+                )}
+              </button>
+              <button
                 className="menu-toggle icon-button"
                 ref={menuToggle}
                 onClick={() => setMenu((value) => !value)}
@@ -904,6 +980,7 @@ export default function App() {
               motionOff={motionOff}
               setMotionOff={setMotionOff}
               reduce={reduce}
+              theme={theme}
             />
             <div className="launch-status">
               <div className="launch-status-intro">
@@ -941,9 +1018,10 @@ export default function App() {
               setSelected={setSelected}
               openRegistration={openRegistration}
               motionOff={paused}
+              theme={theme}
             />
             <FlightPlan />
-            <Payload />
+            <Payload theme={theme} />
             <FAQ />
             <section className="final-cta">
               <div className="cta-grid" aria-hidden="true" />
@@ -998,7 +1076,7 @@ export default function App() {
               <div className="footer-credits">
                 <span className="mono">A RECRUITMENT CONCEPT FOR</span>
                 <img
-                  src={asset('logos/ieee-cs-white.png')}
+                  src={asset(`logos/${themeAssets[theme].logo}`)}
                   alt="IEEE Computer Society UCSC Student Branch Chapter"
                   width="190"
                   height="104"
