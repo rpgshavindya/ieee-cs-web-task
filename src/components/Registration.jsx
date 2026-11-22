@@ -269,7 +269,7 @@ export default function Registration({ open, selectedMission, motionOff, onClose
                 <label
                   key={item.id}
                   className={mission === item.id ? 'selected' : ''}
-                  style={{ '--track-color': item.color }}
+                  style={{ '--track-color': item.accent }}
                 >
                   <input
                     type="radio"
@@ -320,7 +320,7 @@ export default function Registration({ open, selectedMission, motionOff, onClose
               </div>
               <div>
                 <span>MISSION</span>
-                <strong style={{ color: chosen.color }}>{chosen.name}</strong>
+                <strong style={{ color: chosen.accent }}>{chosen.name}</strong>
               </div>
               <div>
                 <span>BUILD WINDOW</span>
@@ -353,7 +353,7 @@ export default function Registration({ open, selectedMission, motionOff, onClose
               <em>{name.trim()}.</em>
             </h2>
             <p>Your next big idea has a destination.</p>
-            <div className="ticket" style={{ '--track-color': chosen.color }}>
+            <div className="ticket" style={{ '--track-color': chosen.accent }}>
               <div className="ticket-top">
                 <span>ORBIT ’26</span>
                 <span className="mono">BOARDING PASS</span>

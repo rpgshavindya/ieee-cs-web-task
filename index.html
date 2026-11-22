@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#080D1E" />
+    <script>
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem('orbit-theme');
+        } catch {
+          // Storage can be unavailable in restricted browsing contexts.
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = theme;
+        if (theme === 'light') document.querySelector('meta[name="theme-color"]').content = '#f5f8ff';
+      })();
+    </script>
     <meta
       name="description"
       content="ORBIT ’26 — a fictional 36-hour student hackathon. Three missions. One extraordinary leap. An original IEEE CS UCSC recruitment concept."

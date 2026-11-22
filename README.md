@@ -49,6 +49,7 @@ The component sources and license are in `src/components/react-bits/`. Additiona
 
 ## Main interactions
 
+- **Theme control:** switches between light and dark palettes. It follows the device’s color scheme until a visitor makes a choice, which is saved on that browser.
 - **Experience the orbit:** temporarily boosts the orb for five seconds, with an explicit toggle state.
 - **Motion control:** pauses the orb and decorative CSS effects, disables magnetic movement, and replaces the moving marquee with static text. Operating-system reduced motion is respected.
 - **Mission selector:** three cards update a terminal-style brief, suggested problem, and the application's initial mission.
@@ -71,7 +72,7 @@ The component sources and license are in `src/components/react-bits/`. Additiona
 
 ORBIT ’26 is **fictional**. Dates, venue, track briefs, schedule, and evaluation rubric are illustrative. The provided IEEE CS logo is used as a recruitment asset, not as a claim that this event is endorsed or scheduled.
 
-The application is a **local demo**: no server requests, cookies, localStorage, or actual registration. Nickname and choices exist only in React memory and are reset when the application is reopened; closing clears the nickname. Downloading a pass saves only the file you choose to download. No application is sent to an organizer.
+The application is a **local demo**: no server requests, cookies, or actual registration. Browser storage holds only the theme preference. Nickname and choices exist only in React memory and are reset when the application is reopened; closing clears the nickname. Downloading a pass saves only the file you choose to download. No application is sent to an organizer.
 
 ## Project structure
 

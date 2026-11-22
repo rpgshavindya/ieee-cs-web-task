@@ -7,6 +7,7 @@ export const missions = [
     name: 'Human, amplified.',
     category: 'ARTIFICIAL INTELLIGENCE',
     color: '#4F8CFF',
+    accent: 'var(--accent-primary)',
     Icon: BrainCircuit,
     tagline: 'Give human potential an unfair advantage.',
     brief:
@@ -22,6 +23,7 @@ export const missions = [
     name: 'A better blue dot.',
     category: 'CLIMATE & SUSTAINABILITY',
     color: '#36F1CD',
+    accent: 'var(--accent-secondary)',
     Icon: Leaf,
     tagline: 'Small changes. Planet-sized possibilities.',
     brief:
@@ -37,6 +39,7 @@ export const missions = [
     name: 'Off the map.',
     category: 'OPEN INNOVATION',
     color: '#A99BFF',
+    accent: 'var(--accent-tertiary)',
     Icon: Orbit,
     tagline: 'The next frontier doesn’t come with instructions.',
     brief:
